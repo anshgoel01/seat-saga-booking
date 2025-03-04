@@ -1,53 +1,217 @@
 
-import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import Navbar from '@/components/Navbar';
-import AuthForm from '@/components/AuthForm';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardFooter, 
+  CardHeader, 
+  CardTitle 
+} from '@/components/ui/card';
+import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from '@/components/ui/tabs';
+import { toast } from 'sonner';
+import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 
 const Login = () => {
-  useEffect(() => {
-    // Scroll to top when component mounts
-    window.scrollTo(0, 0);
-  }, []);
-
-  return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar />
+  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Login form state
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  
+  // Register form state
+  const [registerName, setRegisterName] = useState('');
+  const [registerEmail, setRegisterEmail] = useState('');
+  const [registerPassword, setRegisterPassword] = useState('');
+  
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    setIsLoading(true);
+    // Mock login for demo purposes - would connect to auth service in production
+    setTimeout(() => {
+      setIsLoading(false);
       
-      <div className="flex-1 flex flex-col sm:flex-row">
-        {/* Left side - Form */}
-        <div className="flex-1 flex items-center justify-center p-6 sm:p-8 md:p-12 animate-fade-in">
-          <div className="w-full max-w-md">
-            <AuthForm type="login" />
-          </div>
+      // Simple validation for demo
+      if (loginEmail && loginPassword) {
+        // For demo, allow admin login with specific credentials
+        const isAdmin = loginEmail === 'admin@example.com' && loginPassword === 'admin123';
+        
+        // Store user info in localStorage (would use proper auth in production)
+        localStorage.setItem('user', JSON.stringify({
+          id: '1',
+          email: loginEmail,
+          name: loginEmail.split('@')[0],
+          isAdmin
+        }));
+        
+        toast.success('Login successful!');
+        
+        // Redirect based on role
+        if (isAdmin) {
+          navigate('/admin');
+        } else {
+          navigate('/');
+        }
+      } else {
+        toast.error('Please enter valid credentials');
+      }
+    }, 1000);
+  };
+  
+  const handleRegister = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    setIsLoading(true);
+    // Mock registration for demo purposes
+    setTimeout(() => {
+      setIsLoading(false);
+      
+      // Simple validation for demo
+      if (registerName && registerEmail && registerPassword) {
+        toast.success('Registration successful! Please log in.');
+        
+        // Reset form and switch to login tab
+        setRegisterName('');
+        setRegisterEmail('');
+        setRegisterPassword('');
+        
+        // Auto-focus login tab
+        document.getElementById('login-tab')?.click();
+      } else {
+        toast.error('Please fill all fields');
+      }
+    }, 1000);
+  };
+  
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-background">
+      <div className="w-full max-w-md space-y-8">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold tracking-tight">Welcome to CineTix</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Book your perfect movie experience</p>
         </div>
         
-        {/* Right side - Image */}
-        <div className="hidden sm:block sm:flex-1 bg-gradient-to-r from-gray-800 to-gray-900 relative overflow-hidden">
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute inset-0 bg-black/30 z-10"></div>
-            <img 
-              src="https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
-              alt="Cinema" 
-              className="object-cover w-full h-full"
-            />
-          </div>
-          
-          <div className="relative z-20 h-full flex flex-col items-center justify-center p-12 text-white">
-            <div className="max-w-sm text-center">
-              <h2 className="text-3xl font-bold mb-6">Welcome Back!</h2>
-              <p className="text-lg text-gray-300 mb-8">
-                Sign in to access your account, manage your bookings, and enjoy a seamless movie experience.
-              </p>
-              <div className="inline-flex items-center">
-                <span className="text-gray-400 mr-2">Don't have an account yet?</span>
-                <Link to="/register" className="text-white hover:underline font-medium">
-                  Sign Up
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Card>
+          <Tabs defaultValue="login" className="w-full">
+            <CardHeader>
+              <TabsList className="grid grid-cols-2 w-full">
+                <TabsTrigger id="login-tab" value="login">Login</TabsTrigger>
+                <TabsTrigger value="register">Register</TabsTrigger>
+              </TabsList>
+            </CardHeader>
+            
+            <CardContent>
+              <TabsContent value="login">
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Email"
+                        type="email"
+                        value={loginEmail}
+                        onChange={(e) => setLoginEmail(e.target.value)}
+                        className="pl-10"
+                        required
+                      />
+                    </div>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Password"
+                        type={showPassword ? "text" : "password"}
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                        className="pl-10"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-3"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? "Logging in..." : "Login"}
+                  </Button>
+                  
+                  <div className="text-xs text-center text-muted-foreground">
+                    <p>Demo Admin: admin@example.com / admin123</p>
+                    <p>Demo User: user@example.com / user123</p>
+                  </div>
+                </form>
+              </TabsContent>
+              
+              <TabsContent value="register">
+                <form onSubmit={handleRegister} className="space-y-4">
+                  <div className="space-y-2">
+                    <Input
+                      placeholder="Full Name"
+                      type="text"
+                      value={registerName}
+                      onChange={(e) => setRegisterName(e.target.value)}
+                      required
+                    />
+                    <Input
+                      placeholder="Email"
+                      type="email"
+                      value={registerEmail}
+                      onChange={(e) => setRegisterEmail(e.target.value)}
+                      required
+                    />
+                    <div className="relative">
+                      <Input
+                        placeholder="Password"
+                        type={showPassword ? "text" : "password"}
+                        value={registerPassword}
+                        onChange={(e) => setRegisterPassword(e.target.value)}
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-3"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? "Creating account..." : "Create account"}
+                  </Button>
+                </form>
+              </TabsContent>
+            </CardContent>
+            
+            <CardFooter className="text-xs text-center text-muted-foreground">
+              By continuing, you agree to our Terms of Service and Privacy Policy.
+            </CardFooter>
+          </Tabs>
+        </Card>
       </div>
     </div>
   );

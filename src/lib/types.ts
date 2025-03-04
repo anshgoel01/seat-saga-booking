@@ -69,3 +69,18 @@ export interface Notification {
   createdAt: string;
   read: boolean;
 }
+
+export interface AdminSettings {
+  seatLayout: {
+    rows: number;
+    seatsPerRow: number;
+  };
+  seatPricing: {
+    standard: number;
+    premium: number;
+    vip: number;
+  };
+  notificationThresholds: {
+    bookingPercentage: number[];
+  };
+}
