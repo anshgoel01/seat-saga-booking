@@ -9,9 +9,10 @@ import { cn } from '@/lib/utils';
 interface MovieCardProps {
   movie: Movie;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-const MovieCard = ({ movie, className }: MovieCardProps) => {
+const MovieCard = ({ movie, className, style }: MovieCardProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   
@@ -29,6 +30,7 @@ const MovieCard = ({ movie, className }: MovieCardProps) => {
         "glass-card overflow-hidden rounded-lg group transition-all duration-500 cursor-pointer",
         className
       )}
+      style={style}
       onClick={() => navigate(`/movies/${movie.id}`)}
     >
       <div className="relative aspect-[2/3] overflow-hidden bg-gray-100">
