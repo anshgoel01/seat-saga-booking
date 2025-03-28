@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { 
   Card, 
@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { ChevronLeft, ChevronRight, Clock, Calendar, Film, MapPin } from 'lucide-react';
 import { Movie, ShowTime, Seat, SeatRow, User } from '@/lib/types';
 import { movies, generateSeats } from '@/lib/data';
+import SeatMap from '@/components/SeatMap';
 
 const BookingSteps = {
   SELECT_SHOWTIME: 0,
@@ -95,15 +96,10 @@ const Booking = () => {
     setCurrentStep(BookingSteps.SELECT_SEATS);
   };
   
-  const handleSeatSelect = (seat: Seat) => {
-    if (seat.status === 'booked') return;
-    
-    if (selectedSeats.find(s => s.id === seat.id)) {
-      setSelectedSeats(prev => prev.filter(s => s.id !== seat.id));
-    } else {
-      setSelectedSeats(prev => [...prev, { ...seat, status: 'selected' }]);
-    }
-  };
+  // Use useCallback to prevent recreation of this function on every render
+  const handleSeatSelect = useCallback((updatedSelectedSeats: Seat[]) => {
+    setSelectedSeats(updatedSelectedSeats);
+  }, []);
   
   const handleContinueToCheckout = () => {
     if (selectedSeats.length === 0) {
@@ -268,64 +264,13 @@ const Booking = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="flex justify-center mb-8">
-                  <div className="w-full max-w-2xl bg-gray-800 h-4 rounded-t-lg mb-10" />
-                </div>
-                
-                <div className="grid gap-2 mb-6">
-                  {seats.map((row) => (
-                    <div key={row.row} className="flex items-center">
-                      <div className="w-6 text-center text-sm font-medium">{row.row}</div>
-                      <div className="flex-1 grid grid-cols-10 gap-1">
-                        {row.seats.map((seat) => {
-                          const isSelected = selectedSeats.some(s => s.id === seat.id);
-                          
-                          let seatClass = 'bg-secondary text-secondary-foreground hover:bg-secondary/80';
-                          if (seat.status === 'booked') {
-                            seatClass = 'bg-gray-300 text-gray-400 cursor-not-allowed';
-                          } else if (isSelected) {
-                            seatClass = 'bg-primary text-primary-foreground hover:bg-primary/90';
-                          } else if (seat.type === 'premium') {
-                            seatClass = 'bg-blue-100 text-blue-700 hover:bg-blue-200';
-                          } else if (seat.type === 'vip') {
-                            seatClass = 'bg-purple-100 text-purple-700 hover:bg-purple-200';
-                          }
-                          
-                          return (
-                            <button
-                              key={seat.id}
-                              className={`h-7 text-xs font-medium rounded flex items-center justify-center ${seatClass}`}
-                              onClick={() => handleSeatSelect(seat)}
-                              disabled={seat.status === 'booked'}
-                            >
-                              {seat.number}
-                            </button>
-                          );
-                        })}
-                      </div>
-                      <div className="w-6 text-center text-sm font-medium">{row.row}</div>
-                    </div>
-                  ))}
-                </div>
-                
-                <div className="flex justify-center mb-4 space-x-6">
-                  <div className="flex items-center">
-                    <div className="w-4 h-4 bg-secondary rounded mr-2"></div>
-                    <span className="text-sm">Standard (${adminSettings.seatPricing.standard})</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-4 h-4 bg-blue-100 rounded mr-2"></div>
-                    <span className="text-sm">Premium (${adminSettings.seatPricing.premium})</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-4 h-4 bg-purple-100 rounded mr-2"></div>
-                    <span className="text-sm">VIP (${adminSettings.seatPricing.vip})</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-4 h-4 bg-gray-300 rounded mr-2"></div>
-                    <span className="text-sm">Booked</span>
-                  </div>
-                </div>
+                {seats.length > 0 && (
+                  <SeatMap 
+                    seats={seats} 
+                    onSeatSelect={handleSeatSelect} 
+                    maxSelections={10} 
+                  />
+                )}
               </CardContent>
               <CardFooter className="flex justify-between">
                 <Button 

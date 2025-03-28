@@ -7,6 +7,7 @@ const SeatMap = ({ seats, onSeatSelect, maxSelections = 10 }) => {
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [hoveredSeat, setHoveredSeat] = useState(null);
   
+  // Only trigger the parent's onSeatSelect when selectedSeats actually changes
   useEffect(() => {
     onSeatSelect(selectedSeats);
   }, [selectedSeats, onSeatSelect]);

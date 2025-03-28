@@ -14,6 +14,7 @@ const SeatMap = ({ seats, onSeatSelect, maxSelections = 10 }: SeatMapProps) => {
   const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
   const [hoveredSeat, setHoveredSeat] = useState<string | null>(null);
   
+  // Only trigger the parent's onSeatSelect when selectedSeats actually changes
   useEffect(() => {
     onSeatSelect(selectedSeats);
   }, [selectedSeats, onSeatSelect]);
@@ -49,7 +50,7 @@ const SeatMap = ({ seats, onSeatSelect, maxSelections = 10 }: SeatMapProps) => {
     return 'available';
   };
   
-  const getSeatTypeLabel = (type: 'standard' | 'premium' | 'vip') => {
+  const getSeatTypeLabel = (type: string) => {
     switch(type) {
       case 'standard': return 'Standard';
       case 'premium': return 'Premium';
