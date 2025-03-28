@@ -12,6 +12,7 @@ import Booking from "./pages/Booking";
 import Payment from "./pages/Payment";
 import Confirmation from "./pages/Confirmation";
 import Account from "./pages/Account";
+import Movies from "./pages/Movies"; // Import the Movies component
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/movies" element={<Movies />} /> {/* Add Movies route */}
+          <Route path="/movies/:movieId" element={<Movies />} /> {/* Add single movie route */}
           <Route path="/movies/:movieId/booking" element={<Booking />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/confirmation" element={<Confirmation />} />
